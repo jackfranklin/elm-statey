@@ -6,6 +6,7 @@ import List
 
 type StateyError
     = TransitionNotDefined
+    | GuardPreventedTansition
 
 
 type State
@@ -48,10 +49,22 @@ transitionDefined stateMachine transition =
     List.any ((==) transition) stateMachine.transitions
 
 
+guardAllowsTransition : StateMachine a -> StateRecord a -> State -> Bool
+guardAllowsTransition stateMachine record newState =
+    stateMachine.guards
+        |> List.filter
+            (\g ->
+                (g.from == record.state || g.from == AnyState) && (g.to == newState || g.to == AnyState)
+            )
+        |> List.all (\{ fn } -> (fn record) == True)
+
+
 transition : StateMachine a -> StateRecord a -> State -> Result StateyError (StateRecord a)
 transition stateMachine record newState =
     if transitionDefined stateMachine ( record.state, newState ) then
-        -- TODO: guards
-        Ok { record | state = newState }
+        if guardAllowsTransition stateMachine record newState then
+            Ok { record | state = newState }
+        else
+            Err GuardPreventedTansition
     else
         Err TransitionNotDefined

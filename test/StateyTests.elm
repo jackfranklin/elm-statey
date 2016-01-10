@@ -63,6 +63,23 @@ gettingStateOfRecordInStateMachine =
         (assertEqual startState (getState { name = "Jack", state = startState }))
 
 
+guardPreventsProgressionTest =
+    let
+        guardedStateMachine =
+            { states = [ startState, middleState, endState ]
+            , transitions = [ ( startState, middleState ), ( middleState, endState ) ]
+            , guards =
+                [ { from = startState, to = middleState, fn = (\_ -> False) }
+                ]
+            }
+
+        person = { name = "Jack", state = startState }
+    in
+        test
+            "guards that return false prevent transition"
+            (assertEqual (Err GuardPreventedTansition) (transition guardedStateMachine person middleState))
+
+
 tests : Test
 tests =
     suite
@@ -71,4 +88,5 @@ tests =
         , gettingStateOfRecordInStateMachine
         , transitioningToValidStates
         , transitioningToInvalidStateErrors
+        , guardPreventsProgressionTest
         ]

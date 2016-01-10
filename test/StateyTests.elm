@@ -34,7 +34,7 @@ creatingAStateMachine =
             (assertEqual expectedStates (getStates stateMachine))
 
 
-transitioningToStates =
+transitioningToValidStates =
     let
         person = { name = "Jack", state = startState }
 
@@ -43,6 +43,18 @@ transitioningToStates =
         test
             "it can transition a record"
             (assertEqual (Ok newPerson) (transition stateMachine person middleState))
+
+
+transitioningToInvalidStateErrors =
+    let
+        person = { name = "Jack", state = endState }
+    in
+        test
+            "it returns Err when transition is not allowed"
+            (assertEqual
+                (Err TransitionNotDefined)
+                (transition stateMachine person middleState)
+            )
 
 
 gettingStateOfRecordInStateMachine =
@@ -57,5 +69,6 @@ tests =
         "Statey tests"
         [ creatingAStateMachine
         , gettingStateOfRecordInStateMachine
-        , transitioningToStates
+        , transitioningToValidStates
+        , transitioningToInvalidStateErrors
         ]

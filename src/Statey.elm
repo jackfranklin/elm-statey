@@ -4,6 +4,10 @@ import Dict exposing (Dict)
 import List
 
 
+type StateyError
+    = TransitionNotDefined
+
+
 type State
     = UserState String
     | AnyState
@@ -44,10 +48,10 @@ transitionDefined stateMachine transition =
     List.any ((==) transition) stateMachine.transitions
 
 
-transition : StateMachine a -> StateRecord a -> State -> Result String (StateRecord a)
+transition : StateMachine a -> StateRecord a -> State -> Result StateyError (StateRecord a)
 transition stateMachine record newState =
     if transitionDefined stateMachine ( record.state, newState ) then
         -- TODO: guards
         Ok { record | state = newState }
     else
-        Err "Transition not defined"
+        Err TransitionNotDefined

@@ -6,48 +6,83 @@ A state machine library, written in Elm. Very much a work in progress!
 
 The [example tests](https://github.com/jackfranklin/elm-statey/blob/master/test/ExampleTests.elm) aim to be a good Elm file to take as your starting point for using this library.
 
-## Usage
+## Usage (taken from example tests)
 
 ```elm
 import Statey exposing (..)
+import ElmTest exposing (..)
 
--- first, define your states
--- statey provides `makeState` for this:
+-- define our custom type Person, which is a record with a `name` property
+-- that extends `StateRecord`, which requires a `state : State` property
+type alias Person =
+    StateRecord { name : String }
 
-startState = makeState "start"
-middleState = makeState "middle"
-endState = makeState "end"
 
--- define your state machine
--- a state machine is a `StateMachine a`
--- where `a` is the properties on the record that you want to have
--- each record also must have a `state` property
+-- make some states
+startState =
+    makeState "start"
 
-stateMachine : StateMachine { name : String }
+
+tiredState =
+    makeState "tired"
+
+
+sleepState =
+    makeState "sleep"
+
+
+-- create the state machine, telling it it should expect records to be of type Person
+stateMachine : StateMachine Person
 stateMachine =
-    -- the states in the state machine
-    { states = [ startState, middleState, endState ]
-    -- the allowed transitions in the form of (from, to)
-    , transitions = [ ( startState, middleState ), ( middleState, endState ) ]
-    -- guard functions for transitions (see below)
-    , guards = []
+    { states = [ startState, tiredState, sleepState ]
+    , transitions =
+        -- the valid transitions in the form of (from, to)
+        [ ( startState, tiredState )
+        , ( tiredState, sleepState )
+        , ( sleepState, startState )
+        ]
+    , guards =
+        -- guards, which will be called before a transition is confirmed
+        -- and the transition will be cancelled if the fn returns false
+        [ { from = tiredState, to = sleepState, fn = \person -> person.name /= "Jack" }
+        ]
     }
 
--- now, we can transition a record
--- somewhere in your code:
 
-person = { name = "Jack", state = startState }
-case transition stateMachine person middleState of
-    Ok newPerson -> newPerson.state == middleState
-    Err err -> -- this won't happen here, transition is valid
+person =
+    { name = "Jack", state = startState }
 
--- now, let's see if we try to do an invalid transition
 
-person = { name = "Jack", state = startState }
--- invalid, no (startState, endState) defined
-case transition stateMachine person endState of
-    Ok newPerson -> ---
-    Err err -> err == TransitionNotDefined
+tiredPerson =
+    { name = "Jack", state = tiredState }
+
+
+tests : Test
+tests =
+    suite
+        "Example tests"
+        [ test
+            "it can tell you the state of a record"
+            (assertEqual startState (getState person))
+        , test
+            "it can transition a person through a state"
+            (assertEqual
+                (Ok { person | state = tiredState })
+                (transition stateMachine person tiredState)
+            )
+        , test
+            "but only if the transition is valid"
+            (assertEqual
+                (Err TransitionNotDefined)
+                (transition stateMachine person sleepState)
+            )
+        , test
+            "a guard that returns False stops a transition"
+            (assertEqual
+                (Err GuardPreventedTansition)
+                (transition stateMachine tiredPerson sleepState)
+            )
+        ]
 ```
 
 ## Guards

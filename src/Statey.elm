@@ -18,14 +18,14 @@ type alias StateRecord a =
     { a | state : State }
 
 
-type alias Guards a =
+type alias Guard a =
     { from : State, to : State, fn : StateRecord a -> Bool }
 
 
 type alias StateMachine a =
     { states : List State
     , transitions : List ( State, State )
-    , guards : List (Guards a)
+    , guards : List (Guard a)
     }
 
 

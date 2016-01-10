@@ -77,7 +77,10 @@ guardPreventsProgressionTest =
     in
         test
             "guards that return false prevent transition"
-            (assertEqual (Err GuardPreventedTansition) (transition guardedStateMachine person middleState))
+            (assertEqual
+                (Err GuardPreventedTansition)
+                (transition guardedStateMachine person middleState)
+            )
 
 
 tests : Test

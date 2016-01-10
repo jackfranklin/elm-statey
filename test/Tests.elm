@@ -1,11 +1,11 @@
 module Tests (..) where
 
 import ElmTest exposing (..)
-import String
+import StateyTests
 
 
 all : Test
 all =
     suite
         "Elm Statey test suite"
-        []
+        [ StateyTests.tests ]

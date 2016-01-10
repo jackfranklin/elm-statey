@@ -2,6 +2,10 @@
 
 A state machine library, written in Elm. Very much a work in progress!
 
+[View the docs on Elm Package](http://package.elm-lang.org/packages/jackfranklin/elm-statey/1.0.0/Statey).
+
+The [example tests](https://github.com/jackfranklin/elm-statey/blob/master/test/ExampleTests.elm) aim to be a good Elm file to take as your starting point for using this library.
+
 ## Usage
 
 ```elm

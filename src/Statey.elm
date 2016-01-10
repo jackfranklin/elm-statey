@@ -50,6 +50,22 @@ type alias Guard a =
 
 
 {-| A state machine contains a list of valid states, a list of transitions and a list of guards.
+
+A state machine is given a record type that it will always expect to be given. This type should be an extensible record that extends `StateRecord`:
+
+    type alias Person = StateRecord { name: String }
+
+    stateMachine : StateMachine Person
+    stateMachine =
+        { states = [ startState, tiredState, sleepState ]
+        , transitions =
+            [ ( startState, tiredState )
+            , ( tiredState, sleepState )
+            , ( sleepState, startState )
+            ]
+        , guards = []
+        }
+
 -}
 type alias StateMachine a =
     { states : List State

@@ -42,7 +42,10 @@ transitioningToValidStates =
     in
         test
             "it can transition a record"
-            (assertEqual (Ok newPerson) (transition stateMachine person middleState))
+            (assertEqual
+                (Ok newPerson)
+                (transition stateMachine middleState person)
+            )
 
 
 transitioningToInvalidStateErrors =
@@ -53,7 +56,7 @@ transitioningToInvalidStateErrors =
             "it returns Err when transition is not allowed"
             (assertEqual
                 (Err TransitionNotDefined)
-                (transition stateMachine person middleState)
+                (transition stateMachine middleState person)
             )
 
 
@@ -79,7 +82,7 @@ guardPreventsProgressionTest =
             "guards that return false prevent transition"
             (assertEqual
                 (Err GuardPreventedTansition)
-                (transition guardedStateMachine person middleState)
+                (transition guardedStateMachine middleState person)
             )
 
 

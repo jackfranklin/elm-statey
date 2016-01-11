@@ -134,14 +134,14 @@ either be an `Ok newRecord` or `Err StateyErr`.
 
     person = { name = "Jack", state = startState }
 
-    case transition stateMachine person middleState of
+    case transition stateMachine middleState person of
         Ok newPerson ->
             newPerson
         Err err ->
             err == GuardPreventedTansition || err == TransitionNotDefined
 -}
-transition : StateMachine a -> StateRecord a -> State -> Result StateyError (StateRecord a)
-transition stateMachine record newState =
+transition : StateMachine a -> State -> StateRecord a -> Result StateyError (StateRecord a)
+transition stateMachine newState record =
     if transitionDefined stateMachine ( record.state, newState ) then
         if guardAllowsTransition stateMachine record newState then
             Ok { record | state = newState }

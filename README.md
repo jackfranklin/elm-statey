@@ -9,16 +9,19 @@ The [example tests](https://github.com/jackfranklin/elm-statey/blob/master/test/
 ## Usage (taken from example tests)
 
 ```elm
+module ExampleTests (..) where
+
+{-| these tests serve as a good intro to the library
+-}
+
 import Statey exposing (..)
 import ElmTest exposing (..)
 
--- define our custom type Person, which is a record with a `name` property
--- that extends `StateRecord`, which requires a `state : State` property
+
 type alias Person =
     StateRecord { name : String }
 
 
--- make some states
 startState =
     makeState "start"
 
@@ -31,19 +34,15 @@ sleepState =
     makeState "sleep"
 
 
--- create the state machine, telling it it should expect records to be of type Person
 stateMachine : StateMachine Person
 stateMachine =
     { states = [ startState, tiredState, sleepState ]
     , transitions =
-        -- the valid transitions in the form of (from, to)
         [ ( startState, tiredState )
         , ( tiredState, sleepState )
         , ( sleepState, startState )
         ]
     , guards =
-        -- guards, which will be called before a transition is confirmed
-        -- and the transition will be cancelled if the fn returns false
         [ { from = tiredState, to = sleepState, fn = \person -> person.name /= "Jack" }
         ]
     }
@@ -68,19 +67,19 @@ tests =
             "it can transition a person through a state"
             (assertEqual
                 (Ok { person | state = tiredState })
-                (transition stateMachine person tiredState)
+                (transition stateMachine tiredState person)
             )
         , test
             "but only if the transition is valid"
             (assertEqual
                 (Err TransitionNotDefined)
-                (transition stateMachine person sleepState)
+                (transition stateMachine sleepState person)
             )
         , test
             "a guard that returns False stops a transition"
             (assertEqual
                 (Err GuardPreventedTansition)
-                (transition stateMachine tiredPerson sleepState)
+                (transition stateMachine sleepState tiredPerson)
             )
         ]
 ```
@@ -101,7 +100,7 @@ guardedStateMachine =
 
 person = { name = "Jack", state = startState }
 -- invalid, guard from start -> middle returns False
-case transition stateMachine person middleState of
+case transition stateMachine middleState person of
     Ok newPerson -> ---
     Err err -> err == GuardPreventedTansition
 ```
@@ -122,7 +121,7 @@ guardedStateMachine =
 
 person = { name = "Jack", state = startState }
 -- invalid, person.name == "Jack"
-case transition stateMachine person middleState of
+case transition stateMachine middleState person of
     Ok newPerson -> ---
     Err err -> err == GuardPreventedTansition
 ```

@@ -56,18 +56,18 @@ tests =
             "it can transition a person through a state"
             (assertEqual
                 (Ok { person | state = tiredState })
-                (transition stateMachine person tiredState)
+                (transition stateMachine tiredState person)
             )
         , test
             "but only if the transition is valid"
             (assertEqual
                 (Err TransitionNotDefined)
-                (transition stateMachine person sleepState)
+                (transition stateMachine sleepState person)
             )
         , test
             "a guard that returns False stops a transition"
             (assertEqual
                 (Err GuardPreventedTansition)
-                (transition stateMachine tiredPerson sleepState)
+                (transition stateMachine sleepState tiredPerson)
             )
         ]
